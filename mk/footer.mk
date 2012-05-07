@@ -22,6 +22,18 @@ else
 TARGETS_$(d) := $(OBJS_$(d))
 endif
 
+ifdef INSTALL_BIN
+INSTALL_BIN_$(d) := $(addprefix $(OBJPATH)/,$(INSTALL_BIN))
+endif
+
+ifdef INSTALL_LIB
+INSTALL_LIB_$(d) := $(addprefix $(OBJPATH)/,$(INSTALL_LIB))
+endif
+
+ifdef INSTALL_INC
+INSTALL_INC_$(d) := $(INSTALL_INC)
+endif
+
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 .PHONY: dir_$(d) tree_$(d) clean_$(d) clean_extra_$(d) clean_tree_$(d) dist_clean_$(d)

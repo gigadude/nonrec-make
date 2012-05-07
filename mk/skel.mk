@@ -167,5 +167,17 @@ define subtree_tgts
 $(TARGETS_$(1)) $(foreach sd,$(SUBDIRS_$(1)),$(call subtree_tgts,$(sd)))
 endef
 
+define subtree_inst_bins
+$(INSTALL_BIN_$(1)) $(foreach sd,$(SUBDIRS_$(1)),$(call subtree_inst_bins,$(sd)))
+endef
+
+define subtree_inst_libs
+$(INSTALL_LIB_$(1)) $(foreach sd,$(SUBDIRS_$(1)),$(call subtree_inst_libs,$(sd)))
+endef
+
+define subtree_inst_incs
+$(INSTALL_INC_$(1)) $(foreach sd,$(SUBDIRS_$(1)),$(call subtree_inst_incs,$(sd)))
+endef
+
 # Suck in the default rules
 include $(MK)/def_rules.mk

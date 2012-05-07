@@ -26,16 +26,19 @@ MK := $(TOP)/mk
 # A shortcut to build whole subtree
 tree : tree_$(RUNDIR)
 # A shortcut to build just this dir
-tree : dir_$(RUNDIR)
+dir : dir_$(RUNDIR)
 
 clean : clean_$(RUNDIR)
 clean_tree : clean_tree_$(RUNDIR)
 
-INSTALLABLES = $(filter-out %.o,$(call subtree_tgts,$(d)))
+INSTALL_BINS = $(call subtree_inst_bins,$(d))
+INSTALL_LIBS = $(call subtree_inst_libs,$(d))
+INSTALL_INCS = $(call subtree_inst_incs,$(d))
 
 install :
-	@echo "example install libs: $(filter %.$(SOEXT),$(INSTALLABLES)) -> $(TOP)/$(HOST_ARCH)/lib"
-	@echo "example install exes: $(filter-out %.a %.$(SOEXT),$(INSTALLABLES)) -> $(TOP)/$(HOST_ARCH)/bin"
+	@echo "example install libs: $(INSTALL_LIBS) -> $(TOP)/$(HOST_ARCH)/lib"
+	@echo "example install exes: $(INSTALL_BINS) -> $(TOP)/$(HOST_ARCH)/bin"
+	@echo "example install incs: $(INSTALL_INCS) -> $(TOP)/$(HOST_ARCH)/inc"
 
 include $(MK)/header.mk
 include $(TOP)/Rules.top
