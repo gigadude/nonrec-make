@@ -21,7 +21,7 @@
 # Please don't argue about this choice of colors - I'm always using black
 # background so yellow on black it is :-D - background is specified
 # below just for those using bright background :-P
-COLOR := \033[33;40m
+COLOR := \033[35m
 NOCOLOR := \033[0m
 
 ifndef COLOR_TTY
@@ -31,9 +31,9 @@ endif
 ifneq ($(VERBOSE),true)
 ifeq ($(COLOR_TTY),true)
 echo_prog := $(shell if echo -e | grep -q -- -e; then echo echo; else echo echo -e; fi)
-echo_cmd = @$(echo_prog) "$(COLOR)$(1)$(NOCOLOR)";
+echo_cmd = @$(echo_prog) "$(COLOR)$(patsubst $(TOP)/%,%,$(1))$(NOCOLOR)";
 else
-echo_cmd = @echo "$(1)";
+echo_cmd = @echo "$(patsubst $(TOP)/%,%,$(1))";
 endif
 else # Verbose output
 echo_cmd =

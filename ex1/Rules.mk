@@ -1,4 +1,6 @@
 TARGETS = app.exe cli.exe
+INSTALL_BIN = $(TARGETS)
+
 SUBDIRS = Dir_1 Dir_2 Dir_3
 
 app.exe_DEPS = top_a.o top_b.o main.o $(SUBDIRS_TGTS)

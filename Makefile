@@ -22,12 +22,20 @@ MK := $(TOP)/mk
 .PHONY: all clean clean_all clean_tree
 
 # By default build only targets from this directory (and its dependencies)
-.DEFAULT_GOAL := dir_$(RUNDIR)
+.DEFAULT_GOAL := tree_$(RUNDIR)
 # A shortcut to build whole subtree
 tree : tree_$(RUNDIR)
+# A shortcut to build just this dir
+tree : dir_$(RUNDIR)
 
 clean : clean_$(RUNDIR)
 clean_tree : clean_tree_$(RUNDIR)
+
+INSTALLABLES = $(filter-out %.o,$(call subtree_tgts,$(d)))
+
+install :
+	@echo "example install libs: $(filter %.$(SOEXT),$(INSTALLABLES)) -> $(TOP)/$(HOST_ARCH)/lib"
+	@echo "example install exes: $(filter-out %.a %.$(SOEXT),$(INSTALLABLES)) -> $(TOP)/$(HOST_ARCH)/bin"
 
 include $(MK)/header.mk
 include $(TOP)/Rules.top

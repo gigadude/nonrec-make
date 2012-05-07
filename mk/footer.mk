@@ -24,7 +24,7 @@ endif
 
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
-.PHONY: dir_$(d) clean_$(d) clean_extra_$(d) clean_tree_$(d)
+.PHONY: dir_$(d) tree_$(d) clean_$(d) clean_extra_$(d) clean_tree_$(d)
 .SECONDARY: $(OBJPATH)/.fake_file
 
 # Whole tree targets
