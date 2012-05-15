@@ -1,7 +1,7 @@
 SUBDIRS_$(d) := $(patsubst %/,%,$(addprefix $(d)/,$(SUBDIRS)))
 
 ifneq ($(strip $(OBJS)),)
-OBJS_$(d) := $(addprefix $(OBJPATH)/,$(OBJS))
+OBJS_$(d) := $(foreach od,$(OBJPATHS),$(addprefix $(od)/,$(OBJS)))
 else # Populate OBJS_ from SRCS
 
 # Expand wildcards in SRCS if they are given
@@ -10,24 +10,24 @@ ifneq ($(or $(findstring *,$(SRCS)),$(findstring ?,$(SRCS)),$(findstring ],$(SRC
   SRCS := $(filter-out $(SRCS_EXCLUDES), $(SRCS))
 endif
 
-OBJS_$(d) := $(addprefix $(OBJPATH)/,$(addsuffix .o,$(basename $(SRCS))))
+OBJS_$(d) := $(foreach od,$(OBJPATHS),$(addprefix $(od)/,$(addsuffix .o,$(basename $(SRCS)))))
 endif
 
 CLEAN_$(d) := $(CLEAN_$(d)) $(addprefix $(d)/,$(CLEAN))
 
 ifdef TARGETS
-TARGETS_$(d) := $(addprefix $(OBJPATH)/,$(TARGETS))
-$(foreach tgt,$(filter-out $(AUTO_TGTS),$(TARGETS)),$(eval $(call save_vars,$(tgt))))
+TARGETS_$(d) := $(foreach od,$(OBJPATHS),$(addprefix $(od)/,$(TARGETS)))
+$(foreach od,$(OBJPATHS),$(foreach tgt,$(filter-out $(AUTO_TGTS),$(TARGETS)),$(eval $(call save_vars,$(od),$(tgt)))))
 else
 TARGETS_$(d) := $(OBJS_$(d))
 endif
 
 ifdef INSTALL_BIN
-INSTALL_BIN_$(d) := $(addprefix $(OBJPATH)/,$(INSTALL_BIN))
+INSTALL_BIN_$(d) := $(foreach od,$(OBJPATHS),$(addprefix $(od)/,$(INSTALL_BIN)))
 endif
 
 ifdef INSTALL_LIB
-INSTALL_LIB_$(d) := $(addprefix $(OBJPATH)/,$(INSTALL_LIB))
+INSTALL_LIB_$(d) := $(foreach od,$(OBJPATHS),$(addprefix $(od)/,$(INSTALL_LIB)))
 endif
 
 ifdef INSTALL_INC
@@ -37,10 +37,10 @@ endif
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 .PHONY: dir_$(d) tree_$(d) clean_$(d) clean_extra_$(d) clean_tree_$(d) dist_clean_$(d)
-.SECONDARY: $(OBJPATH)/.fake_file
+.SECONDARY: $(foreach od,$(OBJPATHS),$(od)/.fake_file)
 
 # Whole tree targets
-all :: $(TARGETS_$(d))
+#all :: $(TARGETS_$(d))
 
 clean_all :: clean_$(d)
 dist_clean :: dist_clean_$(d)
@@ -61,10 +61,10 @@ clean_$(d) :
 else
 clean_$(d) : clean_extra_$(d)
 endif
-	rm -f $(subst clean_,,$@)/$(OBJDIR)/*
+	rm -rf $(subst clean_,,$@)/$(OBJDIR)/*
 
 clean_extra_$(d) :
-	rm -f $(CLEAN_$(subst clean_extra_,,$@))
+	rm -rf $(CLEAN_$(subst clean_extra_,,$@))
 
 clean_tree_$(d) : clean_$(d) $(foreach sd,$(SUBDIRS_$(d)),clean_tree_$(sd))
 
@@ -75,9 +75,9 @@ ifeq ($(filter clean clean_% dist_clean,$(MAKECMDGOALS)),)
 SUBDIRS_TGTS := $(foreach sd,$(SUBDIRS_$(d)),$(TARGETS_$(sd)))
 
 # Use the skeleton for the "current dir"
-$(eval $(call skeleton,$(d)))
+$(foreach od,$(OBJPATHS),$(eval $(call skeleton,$(od),$(d))))
 # and for each SRCS_VPATH subdirectory of "current dir"
-$(foreach vd,$(SRCS_VPATH),$(eval $(call skeleton,$(d)/$(vd))))
+$(foreach od,$(OBJPATHS),$(foreach vd,$(SRCS_VPATH),$(eval $(call skeleton,$(od),$(d)/$(vd)))))
 
 # Target rules for all "non automatic" targets
 $(foreach tgt,$(filter-out $(AUTO_TGTS),$(TARGETS_$(d))),$(eval $(call tgt_rule,$(tgt))))

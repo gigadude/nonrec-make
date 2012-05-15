@@ -28,12 +28,16 @@ ifndef COLOR_TTY
 COLOR_TTY := $(shell [ `tput colors` -gt 2 ] && echo true)
 endif
 
+release_INFO := R
+debug_INFO := D
+prof_INFO := P
+
 ifneq ($(VERBOSE),true)
 ifeq ($(COLOR_TTY),true)
 echo_prog := $(shell if echo -e | grep -q -- -e; then echo echo; else echo echo -e; fi)
-echo_cmd = @$(echo_prog) "$(COLOR)$(patsubst $(TOP)/%,%,$(1))$(NOCOLOR)";
+echo_cmd = @$(echo_prog) "$(COLOR)$($(BUILD_MODE)_INFO) $(patsubst $(TOP)/%,%,$(1))$(NOCOLOR)";
 else
-echo_cmd = @echo "$(patsubst $(TOP)/%,%,$(1))";
+echo_cmd = @echo "$($(BUILD_MODE)_INFO) $(patsubst $(TOP)/%,%,$(1))";
 endif
 else # Verbose output
 echo_cmd =
@@ -54,7 +58,7 @@ LINK.cc = $(call echo_cmd,LINK $@) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(T
 
 # In this build system all objects are in a separate directory and
 # I make sure this directory exists by the dependency on this fake file
-%/$(OBJDIR)/.fake_file:
+%/.fake_file:
 	@[ -d $(dir $@) ] || mkdir -p $(dir $@); touch $@
 
 # Generic rules.  Again, since the output is in different directory than
@@ -72,19 +76,22 @@ LINK.cc = $(call echo_cmd,LINK $@) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(T
 # COMPILE.cmo.ml = $(call echo_cmd,CAML $<) $(CAML) -c
 # COMPILE.cmx.ml = $(call echo_cmd,CAMLOPT $<) $(CAMLOPT) -c
 # together with corresponding two entries in 'skeleton' below:
-# $(OBJPATH)/%.cmo $(OBJPATH)/%.cmx: $(1)/%.ml $(OBJPATH)/.fake_file
+# $(1)/%.cmo $(1)/%.cmx: $(2)/%.ml $(1)/.fake_file
 # 	$(value COMPILECMD_TD)
 
 COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 COMPILECMD_TD = $(COMPILE$(suffix $@)$(suffix $<)) -o $@ $<
 
 define skeleton
-$(OBJPATH)/%.o: $(1)/%.cpp $(OBJPATH)/.fake_file
+bmd := $$(notdir $1)
+$(1)/%.o: BUILD_MODE := $$(bmd)
+
+$(1)/%.o: $(2)/%.cpp $(1)/.fake_file
 	$(value COMPILECMD)
 
-$(OBJPATH)/%.o: $(1)/%.cc $(OBJPATH)/.fake_file
+$(1)/%.o: $(2)/%.cc $(1)/.fake_file
 	$(value COMPILECMD)
 
-$(OBJPATH)/%.o: $(1)/%.c $(OBJPATH)/.fake_file
+$(1)/%.o: $(2)/%.c $(1)/.fake_file
 	$(value COMPILECMD)
 endef

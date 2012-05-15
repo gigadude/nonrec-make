@@ -19,3 +19,4 @@ VERBOSE := false
 #COLOR_TTY := false
 
 # Any additional settings should go here
+ARFLAGS := cr
