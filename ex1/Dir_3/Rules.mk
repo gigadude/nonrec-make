@@ -1,6 +1,8 @@
 TARGETS = libdir3.$(SOEXT)
 INSTALL_LIB = $(TARGETS)
 
+INSTALL_LIB := $(TARGETS)
+
 libdir3.$(SOEXT)_DEPS := dir_3_file1.o dir_3_file2.o
 
 # You should not forget about that when you create shared library

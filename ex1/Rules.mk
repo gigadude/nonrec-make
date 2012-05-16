@@ -1,7 +1,8 @@
-TARGETS = app.exe cli.exe
-INSTALL_BIN = $(TARGETS)
+TARGETS := app.exe cli.exe
+SUBDIRS := Dir_1 Dir_2 Dir_3
 
-SUBDIRS = Dir_1 Dir_2 Dir_3
+INSTALL_BIN := $(TARGETS)
+INSTALL_DOC := Readme.txt
 
 app.exe_DEPS = top_a.o top_b.o main.o $(SUBDIRS_TGTS)
 app.exe_LIBS = -lm

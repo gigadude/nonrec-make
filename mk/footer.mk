@@ -22,18 +22,17 @@ else
 TARGETS_$(d) := $(OBJS_$(d))
 endif
 
-ifdef INSTALL_BIN
 INSTALL_BIN_$(d) := $(foreach od,$(OBJPATHS),$(addprefix $(od)/,$(INSTALL_BIN)))
-endif
-
-ifdef INSTALL_LIB
 INSTALL_LIB_$(d) := $(foreach od,$(OBJPATHS),$(addprefix $(od)/,$(INSTALL_LIB)))
-endif
+# Documentation is a bit special since it usually is not generated and
+# if it is then most probably not in OBJDIR so I'm prefixing it with
+# current directory iff it is not absolute path
+INSTALL_DOC_$(d) := $(filter /%,$(INSTALL_DOC)) $(addprefix $(d)/,$(filter-out /%,$(INSTALL_DOC)))
 
-ifdef INSTALL_INC
-INSTALL_INC_$(d) := $(INSTALL_INC)
-endif
-
+########################################################################
+# Inclusion of subdirectories rules - only after this line one can     #
+# refer to subdirectory targets and so on.                             #
+########################################################################
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 .PHONY: dir_$(d) tree_$(d) clean_$(d) clean_extra_$(d) clean_tree_$(d) dist_clean_$(d)
