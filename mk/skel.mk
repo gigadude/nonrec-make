@@ -183,7 +183,8 @@ $$(info bmd_deps=$$(bmd_deps))
 $$(info abs_deps=$$(abs_deps))
 endef
 
-mkoutdir = @mkdir -p $(dir $@)
+mkoutdir_ = @mkdir -p $(dir $@)
+mkoutdir = $(mkoutdir_$(wildcard $(dir $@)))
 
 define tgt_rule
 bmd := $$(lastword $$(subst /, ,$$(dir $1)))
