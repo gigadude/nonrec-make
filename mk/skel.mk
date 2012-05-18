@@ -96,8 +96,10 @@ SOEXT := $(or $(SOEXT),so)
 DEP_OBJS = $(filter %.o, $^)
 DEP_ARCH = $(filter %.a, $^)
 DEP_LIBS = $(addprefix -L,$(dir $(filter %.$(SOEXT), $^))) $(patsubst lib%.$(SOEXT),-l%,$(notdir $(filter %.$(SOEXT), $^)))
-?R = $(filter-out %/.fake_file,$?)
-^R = $(filter-out %/.fake_file,$^)
+#?R = $(filter-out $(OBJPATS),$?)
+#^R = $(filter-out $(OBJPATS),$^)
+?R = $?
+^R = $^
 
 # Targets that match this pattern (make pattern) will use rules defined
 # in:
@@ -112,6 +114,7 @@ AUTO_TGTS := %.o
 # choice would be OBJDIR := obj/$(HOST_ARCH)) or debugging being on/off.
 OBJDIR = $(HOST_ARCH)
 OBJPATHS = $(addprefix $(d)/$(OBJDIR)/,$(BUILDMODES))
+OBJPATS = $(addprefix %/$(OBJDIR)/,$(BUILDMODES))
 
 # This variable contains a list of subdirectories where to look for
 # sources.  That is if you have some/dir/Rules.mk where you name object
@@ -180,6 +183,8 @@ $$(info bmd_deps=$$(bmd_deps))
 $$(info abs_deps=$$(abs_deps))
 endef
 
+mkoutdir = @mkdir -p $(dir $@)
+
 define tgt_rule
 bmd := $$(lastword $$(subst /, ,$$(dir $1)))
 bmd_deps := $$(filter $$(addprefix %/$$(bmd)/,$$(notdir $$(DEPS_$(1)))),$$(DEPS_$(1)))
@@ -188,7 +193,8 @@ rel_deps := $$(filter-out /%,$$(DEPS_$(1)))
 abs_deps += $$(addprefix $(dir $1),$$(rel_deps))
 -include $$(addsuffix .d,$$(basename $$(abs_deps)))
 $(1): BUILD_MODE := $$(bmd)
-$(1): $$(abs_deps) $$(dir $1).fake_file
+$(1): $$(abs_deps)
+	$(value mkoutdir)
 	$$(or $$(CMD_$(1)),$$(MAKECMD$$(suffix $$@)),$$(DEFAULT_MAKECMD))
 endef
 

@@ -36,7 +36,8 @@ INSTALL_DOC_$(d) := $(filter /%,$(INSTALL_DOC)) $(addprefix $(d)/,$(filter-out /
 $(foreach sd,$(SUBDIRS),$(eval $(call include_subdir_rules,$(sd))))
 
 .PHONY: dir_$(d) tree_$(d) clean_$(d) clean_extra_$(d) clean_tree_$(d) dist_clean_$(d)
-.SECONDARY: $(foreach od,$(OBJPATHS),$(od)/.fake_file)
+
+.SECONDARY: $(OBJPATHS)
 
 # Whole tree targets
 #all :: $(TARGETS_$(d))
@@ -60,7 +61,7 @@ clean_$(d) :
 else
 clean_$(d) : clean_extra_$(d)
 endif
-	rm -rf $(subst clean_,,$@)/$(OBJDIR)/*
+	rm -rf $(foreach bmd,$(BUILDMODES),$(subst clean_,,$@)/$(OBJDIR)/$(bmd))
 
 clean_extra_$(d) :
 	rm -rf $(CLEAN_$(subst clean_extra_,,$@))
@@ -72,6 +73,7 @@ clean_tree_$(d) : clean_$(d) $(foreach sd,$(SUBDIRS_$(d)),clean_tree_$(sd))
 ifeq ($(filter clean clean_% dist_clean,$(MAKECMDGOALS)),)
 
 SUBDIRS_TGTS := $(foreach sd,$(SUBDIRS_$(d)),$(TARGETS_$(sd)))
+#$(info d=$(d) SUBDIRS_TGTS=$(SUBDIRS_TGTS))
 
 # Use the skeleton for the "current dir"
 $(foreach od,$(OBJPATHS),$(eval $(call skeleton,$(od),$(d))))

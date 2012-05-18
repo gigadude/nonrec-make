@@ -58,8 +58,11 @@ LINK.cc = $(call echo_cmd,LINK $@) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(T
 
 # In this build system all objects are in a separate directory and
 # I make sure this directory exists by the dependency on this fake file
-%/.fake_file:
-	@[ -d $(dir $@) ] || mkdir -p $(dir $@); touch $@
+#%/.fake_file:
+#	@[ -d $(dir $@) ] || mkdir -p $(dir $@); touch $@
+
+#$(OBJPATS):
+#	[ -d $@ ] || mkdir -p $@
 
 # Generic rules.  Again, since the output is in different directory than
 # source files I cannot count on the built in make rules.  So I keep
@@ -83,15 +86,17 @@ COMPILECMD = $(COMPILE$(suffix $<)) -o $@ $<
 COMPILECMD_TD = $(COMPILE$(suffix $@)$(suffix $<)) -o $@ $<
 
 define skeleton
-bmd := $$(notdir $1)
-$(1)/%.o: BUILD_MODE := $$(bmd)
+$(1)/%.o: BUILD_MODE := $$(notdir $1)
 
-$(1)/%.o: $(2)/%.cpp $(1)/.fake_file
+$(1)/%.o: $(2)/%.cpp
+	$(value mkoutdir)
 	$(value COMPILECMD)
 
-$(1)/%.o: $(2)/%.cc $(1)/.fake_file
+$(1)/%.o: $(2)/%.cc
+	$(value mkoutdir)
 	$(value COMPILECMD)
 
-$(1)/%.o: $(2)/%.c $(1)/.fake_file
+$(1)/%.o: $(2)/%.c
+	$(value mkoutdir)
 	$(value COMPILECMD)
 endef
